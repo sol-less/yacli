@@ -39,7 +39,7 @@ mkdir -p ~/.local/bin && mv dist/yacli ~/.local/bin/yacli
 
 ## Option 2: AUR Install
 > [!NOTE]
-> AUR Install is not available due to first commit and first version being added, sorry!
+> AUR Install is **still** not available, sorry!
 
 # Usage
 - Use ```yacli``` to show universal help
