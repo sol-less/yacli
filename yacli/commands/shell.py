@@ -73,3 +73,38 @@ def handle_ipc(target: str, method: str, args: list, quiet: bool):
         subprocess.run(cmd, check=True, stdout=stdout)
     except subprocess.CalledProcessError as e:
         print(f"[-] IPC Call failed: {e}", file=sys.stderr)
+
+def handle_shell_config(args=None):
+    """Opens the quickshell directory in Neovim / $EDITOR."""
+    # Fall back to 'nvim' if $EDITOR environment variable isn't set
+    editor = os.environ.get("EDITOR", "nvim")
+    
+    if not DEFAULT_CONFIG_DIR.exists():
+        print(f"[-] Config directory not found: {DEFAULT_CONFIG_DIR}")
+        return
+
+    # Launches 'nvim ~/.config/quickshell'
+    subprocess.run([editor, str(DEFAULT_CONFIG_DIR)])
+
+def handle_refresh(config_dir: Path, config_file: str, verbose: bool, quiet: bool):
+    """Refreshes Quickshell by triggering an IPC reload or running a clean restart."""
+    if not quiet:
+        print("[*] Refreshing yamd3s shell...")
+    
+    try:
+        res = subprocess.run(
+            ["quickshell", "ipc", "call", "yamd3s", "reload"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        if res.returncode == 0:
+            if not quiet:
+                print("[+] Shell reloaded successfully via IPC!")
+            return
+    except Exception:
+        pass
+
+    if not quiet:
+        print("[*] IPC reload not available. Performing restart...")
+    handle_kill(quiet=True)
+    handle_run(config_dir, config_file, verbose, quiet)
